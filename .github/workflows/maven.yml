@@ -1,15 +1,10 @@
-name: Multi-OS Testing (Matrix)
+name: JaCoCo Quality Enforcement
+
 on: [push]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        # Chạy đồng thời trên cả 3 hệ điều hành
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -18,5 +13,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build and Test
-        run: mvn clean test
+      - name: Run Tests and Check Coverage
+        run: mvn clean verify
+
+      - name: Upload JaCoCo Report Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
